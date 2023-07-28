@@ -35,4 +35,4 @@ pub mod uniform {
         res
     }
 }
-pub mod timeseries;
+pub mod timestamped;

@@ -8,27 +8,27 @@ use unionize::{
     Monoid, Node, Object,
 };
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct RunStats {
-    party_id: usize,
-    msgs_sent: usize,
-    item_sets_sent: usize,
-    fingerprints_sent: usize,
-    items_sent: usize,
-    items_wanted: usize,
-    objects_sent: usize,
+    pub msgs_sent: usize,
+    pub item_sets_sent: usize,
+    pub fingerprints_sent: usize,
+    pub items_sent: usize,
+    pub items_wanted: usize,
+    pub objects_sent: usize,
+    pub items_known: usize,
 }
 
 impl RunStats {
-    fn new(party_id: usize) -> Self {
+    fn new(items_known: usize) -> Self {
         RunStats {
-            party_id,
             msgs_sent: 0,
             item_sets_sent: 0,
             fingerprints_sent: 0,
             items_sent: 0,
             items_wanted: 0,
             objects_sent: 0,
+            items_known,
         }
     }
     fn consume<M, O>(&mut self, msg: &Message<M, O>)
@@ -73,13 +73,14 @@ where
     let mut new_objects_initiator = vec![];
     let mut new_objects_responder = vec![];
 
-    let mut stats_initiator = RunStats::new(0);
-    let mut stats_responder = RunStats::new(1);
+    let mut stats_initiator = RunStats::new(initiator_objects.len());
+    let mut stats_responder = RunStats::new(responder_objects.len());
 
     let mut msg = first_message(initiator_node)?;
     stats_initiator.consume(&msg);
 
     loop {
+        // println!("i: {msg:#?}");
         let (resp, mut new_objs) =
             respond_to_message(responder_node, responder_objects, &msg, threshold, split)?;
         msg = resp;
@@ -88,6 +89,8 @@ where
         if msg.is_end() {
             break;
         }
+
+        // println!("r: {msg:#?}");
 
         let (resp, mut new_objs) =
             respond_to_message(initiator_node, initiator_objects, &msg, threshold, split)?;
@@ -98,6 +101,8 @@ where
             break;
         }
     }
+
+    // println!("end.");
 
     Ok((
         new_objects_initiator,
