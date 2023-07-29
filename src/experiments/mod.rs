@@ -150,6 +150,9 @@ pub mod timestamped {
     #[derive(Clone)]
     pub struct TimestampSim;
     impl Simulator for TimestampSim {
+        const ITEM_SIZE: usize = 33;
+        const MONOID_SIZE: usize = 30;
+
         type Item = timestamped::Item;
         type Monoid = timestamped::Monoid;
         type Node = timestamped::Node;
@@ -249,6 +252,9 @@ pub mod uniform {
     pub struct UniformSim;
 
     impl Simulator for UniformSim {
+        const ITEM_SIZE: usize = 30;
+        const MONOID_SIZE: usize = 30;
+
         type Item = LEByteArray<30>;
         type Monoid = uniform::Monoid;
         type Node = uniform::Node;

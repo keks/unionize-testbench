@@ -31,6 +31,9 @@ pub trait Simulator: Sized + Clone
 where
     SimObject: Object<Self::Item>,
 {
+    const ITEM_SIZE: usize;
+    const MONOID_SIZE: usize;
+
     type Item: Item + Serialize + for<'de2> Deserialize<'de2>;
     type Monoid: ProtocolMonoid<Item = Self::Item, Encoded = Self::EncodedMonoid>;
     type Node: Node<Self::Monoid>;
@@ -582,7 +585,9 @@ where
                 res.sync_responder_items_known = Some(resp.items_known);
 
                 res.sync_initiator_bytes_sent = Some(
-                    90 * init.fingerprints_sent + 60 * init.item_sets_sent + 30 * init.items_sent,
+                    (2 * S::ITEM_SIZE + S::MONOID_SIZE) * init.fingerprints_sent
+                        + (2 * S::ITEM_SIZE) * init.item_sets_sent
+                        + S::ITEM_SIZE * init.items_sent,
                 );
                 res.sync_responder_bytes_sent = Some(
                     90 * resp.fingerprints_sent + 60 * resp.item_sets_sent + 30 * resp.items_sent,
